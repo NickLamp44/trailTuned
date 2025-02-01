@@ -1,18 +1,18 @@
 const express = require("express");
 const mongoose = require("mongoose");
-require("dotenv").config();
+const config = require("../config/config");
 
 const app = express();
-const PORT = process.env.PORT || 5001;
-
-console.log("MongoDB URI:", process.env.MONGO_URI);
 
 // Middleware to parse JSON
 app.use(express.json());
 
+// Log MongoDB URI for debugging purposes
+console.log("MongoDB URI:", config.mongoURI);
+
 // Connect to MongoDB
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect(config.mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log("🚀 Connected to MongoDB successfully"))
   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
@@ -20,6 +20,8 @@ mongoose
 const apiRoutes = require("./routes/api");
 app.use("/api", apiRoutes);
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+// Start server
+app.listen(config.port, () => {
+  console.log(` 👾 Server running on port ${config.port} 👾`);
 });
+// :
