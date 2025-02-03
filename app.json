@@ -1,10 +1,11 @@
 {
   "expo": {
+    "assets": ["./app/assets/fonts/", "./app/assets/images/"],
     "name": "trailTuned",
     "slug": "trailTuned",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./app/assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -13,7 +14,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./app/assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       }
     },
@@ -33,14 +34,6 @@
           "backgroundColor": "#ffffff"
         }
       ]
-    ],
-    "extra": {
-      "expo-router": {
-        "origin": "./app/components/ui"
-      }
-    },
-    "experiments": {
-      "typedRoutes": true
-    }
+    ]
   }
 }

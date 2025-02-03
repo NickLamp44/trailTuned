@@ -1,26 +1,28 @@
-import { View, Text, Button } from "react-native";
+import { View, Button, StyleSheet, Text } from "react-native";
 import { useRouter } from "expo-router";
 
-export default function Index() {
+export default function Home() {
   const router = useRouter();
 
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
+    <View style={styles.container}>
       <Text>Welcome to TRAIL TUNED</Text>
       <Button
         title="Login"
-        onPress={() => router.push("/components/ui/login")}
+        onPress={() => router.push("/screens/auth/login")}
       />
       <Button
         title="Register"
-        onPress={() => router.push("/components/ui/register")}
+        onPress={() => router.push("/screens/auth/register")}
       />
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+});
