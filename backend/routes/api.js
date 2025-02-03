@@ -18,6 +18,30 @@ router.post("/users", async (req, res) => {
   }
 });
 
+// Route to Login
+router.post("/users/login", async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    const user = await User.findOne({ name: username });
+    if (!user || !(await user.matchPassword(password))) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    res.json({
+      message: "Login successful",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+      token: "YourJWTTokenHere", // Implement token generation
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // Route to create a new bike
 router.post("/bikes", async (req, res) => {
   try {

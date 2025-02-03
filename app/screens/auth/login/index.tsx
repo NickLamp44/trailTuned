@@ -1,48 +1,32 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, Button, Alert, StyleSheet } from "react-native";
+import { REACT_APP_API_LOCAL, REACT_APP_API_PROD } from "@env";
 
-const LoginView = ({
-  onLoggedIn,
-}: {
-  onLoggedIn: (user: any, token: string) => void;
-}) => {
+const LoginView = () => {
   const isProduction = process.env.NODE_ENV === "production";
-  const urlAPI = isProduction
-    ? process.env.REACT_APP_API_PROD
-    : process.env.REACT_APP_API_LOCAL;
+  const urlAPI = isProduction ? REACT_APP_API_PROD : REACT_APP_API_LOCAL;
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = () => {
-    const data = { username, password };
-
-    fetch(`${urlAPI}/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((data) => {
-        if (data.user) {
-          console.log("User authenticated:", data.user);
-          onLoggedIn(data.user, data.token);
-        } else {
-          Alert.alert("Login failed", "No such user");
-        }
-      })
-      .catch((error) => {
-        console.error("Login error:", error);
-        Alert.alert(
-          "Error",
-          "Something went wrong during login. Please try again."
-        );
+  const handleSubmit = async () => {
+    try {
+      const response = await fetch(`${urlAPI}/users/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
       });
+
+      if (response.ok) {
+        const data = await response.json();
+        Alert.alert("Login successful", `Welcome ${data.user.name}`);
+      } else {
+        const errorData = await response.json();
+        Alert.alert("Login failed", errorData.message || "Invalid credentials");
+      }
+    } catch (error) {
+      Alert.alert("Error", "Something went wrong. Please try again.");
+    }
   };
 
   return (
@@ -66,8 +50,6 @@ const LoginView = ({
   );
 };
 
-export default LoginView;
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -87,3 +69,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
 });
+
+export default LoginView;
