@@ -1,5 +1,8 @@
 const express = require("express");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const router = express.Router();
+
 const User = require("../models/user");
 const Bike = require("../models/bike");
 const Fork = require("../models/fork");
@@ -9,12 +12,22 @@ const Club = require("../models/clubs");
 
 // Route to create a new user
 router.post("/users", async (req, res) => {
+  console.log("Received payload:", req.body);
+
+  const { name, email, password } = req.body;
+
+  if (!name || !email || !password) {
+    return res.status(400).json({ error: "All fields are required" });
+  }
   try {
-    const user = new User(req.body);
+    // Hash password before saving
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = new User({ name, email, password: hashedPassword });
     await user.save();
-    res.status(201).send({ message: "User created successfully", user });
+    return res.status(201).json({ message: "User created successfully", user });
   } catch (err) {
-    res.status(400).send({ error: err.message });
+    console.error("❌ Error creating user:", err.message);
+    return res.status(400).json({ error: err.message });
   }
 });
 
@@ -23,10 +36,24 @@ router.post("/users/login", async (req, res) => {
   const { username, password } = req.body;
 
   try {
+    // Find user by username
     const user = await User.findOne({ name: username });
-    if (!user || !(await user.matchPassword(password))) {
+    if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
+
+    // Compare provided password with hashed password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    // Generate JWT
+    const token = jwt.sign(
+      { id: user._id, name: user.name },
+      config.jwtSecret,
+      { expiresIn: "1d" }
+    );
 
     res.json({
       message: "Login successful",
@@ -35,7 +62,7 @@ router.post("/users/login", async (req, res) => {
         name: user.name,
         email: user.email,
       },
-      token: "YourJWTTokenHere", // Implement token generation
+      token,
     });
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
